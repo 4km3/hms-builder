@@ -1,9 +1,9 @@
-# maven-builder
+# hms-builder
 Test and build a Java project using Apache Maven, complete with upload to GitHub releases
 
 ## Building
 ```console
-$ docker build -t 4km3/maven-builder .
+$ docker build -t 4km3/hms-builder .
 ```
 ## Configuration
 ### Default values
@@ -40,7 +40,7 @@ $ docker run                                                                    
     -e MAVEN_TEST_TARGET=$MAVEN_TEST_TARGET                                      \
     -e MAVEN_BUILD_TARGET=$MAVEN_BUILD_TARGET                                    \
     -e GITHUB_RELEASE_BIN=$GITHUB_RELEASE_BIN                                    \
-    4km3/maven-builder
+    4km3/hms-builder
 ```
 Also a runme script is provided for convenience
 
