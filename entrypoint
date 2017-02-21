@@ -28,7 +28,7 @@ TARGET=$(xpath -q -e '/project/artifactId/text()' pom.xml)
 # Tag release
 git config url."https://$GITHUB_TOKEN:x-oauth-basic@github.com/".insteadOf "https://github.com/"
 git tag $VERSION
-git push tags
+git push --tags
 
 # Upload new release to github repo using user token
 github-release                                                                 \
