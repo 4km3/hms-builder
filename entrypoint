@@ -1,0 +1,43 @@
+#!/usr/bin/env bash
+
+: "${GITHUB_TOKEN?Need a repository token}"
+: "${GITHUB_REPO?Need a repository name}"
+: "${GITHUB_USER?Need a GitHub username}"
+: "${GITHUB_BRANCH:=master}"
+: "${REPO_DIR:=.}"
+: "${MAVEN_CLEAN_TARGET:=clean}"
+: "${MAVEN_TEST_TARGET:=test}"
+: "${MAVEN_BUILD_TARGET:=package}"
+
+set -xe
+# Clone repo and get inside
+git clone                                                                      \
+    -b "$GITHUB_BRANCH"                                                        \
+    https://github.com/"$GITHUB_USER"/"$GITHUB_REPO".git                       \
+    /srv/"$GITHUB_REPO"
+cd /srv/"$GITHUB_REPO"/"$REPO_DIR"
+
+# Perform maven unit tests and build artifact if successful
+mvn $MAVEN_CLEAN_TARGET $MAVEN_TEST_TARGET
+mvn $MAVEN_CLEAN_TARGET $MAVEN_BUILD_TARGET
+
+# Extract artifact name and version from pom.xml
+VERSION=$(xpath -q -e '/project/version/text()' pom.xml)
+TARGET=$(xpath -q -e '/project/artifactId/text()' pom.xml)
+
+# Upload new release to github repo using user token
+github-release                                                                 \
+    release                                                                    \
+    --user "$GITHUB_USER"                                                      \
+    --repo "$GITHUB_REPO"                                                      \
+    --tag "v$VERSION"                                                          \
+    --name "v$VERSION"                                                         \
+    --description "v$VERSION"
+
+github-release                                                                 \
+    upload                                                                     \
+    --user "$GITHUB_USER"                                                      \
+    --repo "$GITHUB_REPO"                                                      \
+    --tag "v$VERSION"                                                          \
+    --name "$TARGET-linux-amd64"                                               \
+    --file "/srv/$GITHUB_REPO/$REPO_DIR/target/$TARGET-$VERSION.jar"
